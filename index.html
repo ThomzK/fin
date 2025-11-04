@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .auth-banner {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .auth-banner a {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .auth-status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        .auth-status.authenticated {
+            background: #48bb78;
+            color: white;
+        }
+
+        .auth-status.unauthenticated {
+            background: #f56565;
+            color: white;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        .card h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-secondary {
+            background: #718096;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:hover {
+            background: #f7fafc;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #718096;
+        }
+
+        .spinner {
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: #c6f6d5;
+            color: #22543d;
+            border-left: 4px solid #48bb78;
+        }
+
+        .alert-error {
+            background: #fed7d7;
+            color: #742a2a;
+            border-left: 4px solid #f56565;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .table-container {
+                font-size: 0.9em;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📇 Contact Manager</h1>
+            <p>Manage your contact data securely</p>
+            <div id="authStatus" class="auth-status">Checking authentication...</div>
+            <div id="authBanner" style="display: none;" class="auth-banner">
+                ⚠️ You need to authenticate first. 
+                <button id="authButton" class="btn btn-primary" style="margin-top: 10px;">🔐 Sign in with Google</button>
+                <p style="font-size: 0.9em; margin-top: 10px; color: #666;">After signing in, you'll be redirected back here automatically.</p>
+            </div>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <div class="card">
+            <h2>➕ Add New Contact</h2>
+            <form id="addForm">
+                <div class="form-group">
+                    <label for="name">Name *</label>
+                    <input type="text" id="name" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email *</label>
+                    <input type="email" id="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone</label>
+                    <input type="tel" id="phone">
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Add Contact</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2>📋 All Contacts</h2>
+                <button onclick="loadContacts()" class="btn btn-secondary">🔄 Refresh</button>
+            </div>
+            <div id="contactsTable">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    <p>Loading contacts...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <h2>✏️ Edit Contact</h2>
+            <form id="editForm">
+                <input type="hidden" id="editName">
+                <div class="form-group">
+                    <label for="editEmail">Email *</label>
+                    <input type="email" id="editEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editPhone">Phone</label>
+                    <input type="tel" id="editPhone">
+                </div>
+                <div class="form-group">
+                    <label for="editMessage">Message</label>
+                    <textarea id="editMessage"></textarea>
+                </div>
+                <div class="btn-group">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                    <button type="button" onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwTSDtpNCjrZANOnTcyC93gLF2d0CsqP_RIDyU8tqD9jidp0xsj_QrGu4FcdSRHb-uNfw/exec';
+        let callbackCounter = 0;
+
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            alertContainer.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        function jsonpRequest(url, params = {}) {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'jsonpCallback' + (callbackCounter++);
+                
+                // Define callback BEFORE creating script
+                window[callbackName] = (data) => {
+                    cleanup();
+                    resolve(data);
+                };
+                
+                const cleanup = () => {
+                    if (window[callbackName]) {
+                        delete window[callbackName];
+                    }
+                    if (script && script.parentNode) {
+                        script.parentNode.removeChild(script);
+                    }
+                };
+                
+                const script = document.createElement('script');
+                
+                const queryString = Object.keys(params)
+                    .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(params[key]))
+                    .join('&');
+                
+                const separator = url.includes('?') ? '&' : '?';
+                script.src = url + separator + queryString + '&callback=' + callbackName;
+                
+                script.onerror = () => {
+                    cleanup();
+                    reject(new Error('JSONP request failed'));
+                };
+                
+                script.onload = () => {
+                    // Script loaded successfully, callback should have been called
+                    setTimeout(() => {
+                        if (window[callbackName]) {
+                            cleanup();
+                            reject(new Error('Callback was not invoked'));
+                        }
+                    }, 100);
+                };
+                
+                document.head.appendChild(script);
+                
+                // Timeout after 15 seconds
+                setTimeout(() => {
+                    if (window[callbackName]) {
+                        cleanup();
+                        reject(new Error('JSONP request timeout'));
+                    }
+                }, 15000);
+            });
+        }
+
+        async function loadContacts() {
+            const tableContainer = document.getElementById('contactsTable');
+            tableContainer.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading contacts...</p></div>';
+
+            try {
+                const data = await jsonpRequest(API_URL);
+
+                if (data.status === 'error') {
+                    tableContainer.innerHTML = `<div class="alert alert-error">${data.message}</div>`;
+                    updateAuthStatus(false);
+                    return;
+                }
+
+                updateAuthStatus(true, data.user);
+
+                if (!data.records || data.records.length === 0) {
+                    tableContainer.innerHTML = '<p style="text-align: center; color: #718096;">No contacts found. Add your first contact above!</p>';
+                    return;
+                }
+
+                let html = `
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Message</th>
+                                    <th>Created</th>
+                                    <th>Updated</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                data.records.forEach(record => {
+                    const created = record.created_at ? new Date(record.created_at).toLocaleString() : '-';
+                    const updated = record.updated_at ? new Date(record.updated_at).toLocaleString() : '-';
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${escapeHtml(record.name || '')}</strong></td>
+                            <td>${escapeHtml(record.email || '')}</td>
+                            <td>${escapeHtml(record.phone || '')}</td>
+                            <td>${escapeHtml(record.message || '').substring(0, 50)}${(record.message || '').length > 50 ? '...' : ''}</td>
+                            <td>${created}</td>
+                            <td>${updated}</td>
+                            <td>
+                                <div class="actions">
+                                    <button onclick='editContact(${JSON.stringify(record)})' class="btn btn-success">Edit</button>
+                                    <button onclick="deleteContact('${escapeHtml(record.name)}')" class="btn btn-danger">Delete</button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                });
+
+                html += '</tbody></table></div>';
+                tableContainer.innerHTML = html;
+
+            } catch (error) {
+                tableContainer.innerHTML = `<div class="alert alert-error">Error loading contacts. Please make sure you're logged in.</div>`;
+                updateAuthStatus(false);
+            }
+        }
+
+        function updateAuthStatus(authenticated, user = null) {
+            const authStatus = document.getElementById('authStatus');
+            const authBanner = document.getElementById('authBanner');
+            const authButton = document.getElementById('authButton');
+            
+            if (authenticated) {
+                authStatus.className = 'auth-status authenticated';
+                authStatus.textContent = user ? `✓ Logged in as ${user}` : '✓ Authenticated';
+                authBanner.style.display = 'none';
+            } else {
+                authStatus.className = 'auth-status unauthenticated';
+                authStatus.textContent = '✗ Not authenticated';
+                authBanner.style.display = 'block';
+                
+                // Set up sign-in button
+                authButton.onclick = () => {
+                    // Store return URL
+                    sessionStorage.setItem('returnUrl', window.location.href);
+                    // Redirect to Google Apps Script for authentication
+                    window.location.href = API_URL;
+                };
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        document.getElementById('addForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                message: document.getElementById('message').value,
+                action: 'add'
+            };
+
+            try {
+                const result = await jsonpRequest(API_URL, data);
+                
+                if (result.status === 'success') {
+                    showAlert('Contact added successfully!', 'success');
+                    document.getElementById('addForm').reset();
+                    loadContacts();
+                } else {
+                    showAlert(result.message || 'Error adding contact', 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        });
+
+        function editContact(record) {
+            document.getElementById('editName').value = record.name;
+            document.getElementById('editEmail').value = record.email || '';
+            document.getElementById('editPhone').value = record.phone || '';
+            document.getElementById('editMessage').value = record.message || '';
+            document.getElementById('editModal').classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+        }
+
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                action: 'update',
+                name: document.getElementById('editName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                message: document.getElementById('editMessage').value
+            };
+
+            try {
+                const result = await jsonpRequest(API_URL, data);
+                
+                if (result.status === 'success') {
+                    showAlert('Contact updated successfully!', 'success');
+                    closeEditModal();
+                    loadContacts();
+                } else {
+                    showAlert(result.message || 'Error updating contact', 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        });
+
+        async function deleteContact(name) {
+            if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+
+            const data = {
+                action: 'delete',
+                name: name
+            };
+
+            try {
+                const result = await jsonpRequest(API_URL, data);
+                
+                if (result.status === 'success') {
+                    showAlert('Contact deleted successfully!', 'success');
+                    loadContacts();
+                } else {
+                    showAlert(result.message || 'Error deleting contact', 'error');
+                }
+            } catch (error) {
+                showAlert('Error: ' + error.message, 'error');
+            }
+        }
+
+        loadContacts();
+    </script>
+</body>
+</html>
